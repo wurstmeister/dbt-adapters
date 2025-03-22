@@ -913,7 +913,7 @@ class AthenaAdapter(SQLAdapter):
                 )
 
     def _get_glue_table_versions_to_expire(
-        self, relation: AthenaRelation, to_keep: int
+        self, relation: AthenaRelation, catalog_id: str, to_keep: int
     ) -> List[TableVersionTypeDef]:
         """
         Given a table and the amount of its version to keep, it returns the versions to delete
@@ -932,6 +932,7 @@ class AthenaAdapter(SQLAdapter):
         paginator = glue_client.get_paginator("get_table_versions")
         response_iterator = paginator.paginate(
             **{
+                "CatalogId" : catalog_id,
                 "DatabaseName": relation.schema,
                 "TableName": relation.identifier,
             }
@@ -961,7 +962,7 @@ class AthenaAdapter(SQLAdapter):
                 config=get_boto3_config(num_retries=creds.effective_num_retries),
             )
 
-        versions_to_delete = self._get_glue_table_versions_to_expire(relation, to_keep)
+        versions_to_delete = self._get_glue_table_versions_to_expire(relation, catalog_id, to_keep)
         LOGGER.debug(f"Versions to delete: {[v['VersionId'] for v in versions_to_delete]}")
 
         deleted_versions = []
