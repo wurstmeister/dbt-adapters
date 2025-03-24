@@ -150,7 +150,7 @@
 
     {%- set tmp_relation = api.Relation.create(
             identifier=relation.identifier ~ '__tmp_not_partitioned',
-            schema=relation.schema,
+            schema=config.get('temp_schema'),
             database=relation.database,
             s3_path_table_part=relation.identifier ~ '__tmp_not_partitioned' ,
             type='table'
